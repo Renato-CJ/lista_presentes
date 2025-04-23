@@ -1,50 +1,67 @@
-const express = require('express');
-const cors = require('cors');
-require('dotenv').config();
-const db = require('./db');
+import express from 'express';
+import cors from 'cors';
+import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+dotenv.config();
 
 const app = express();
+const port = process.env.PORT || 3000;
+
+// Para resolver __dirname no ESModules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-const PORT = process.env.PORT || 3000; // ← Fallback para 3000 se PORT não estiver no .env
+// Conexão com o banco
+const connection = await mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
+});
 
-// Rota para obter todos os presentes
+// Criação da tabela, se não existir
+await connection.execute(`
+  CREATE TABLE IF NOT EXISTS presentes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255),
+    desc TEXT,
+    link TEXT,
+    img TEXT,
+    recebido BOOLEAN DEFAULT FALSE
+  )
+`);
+
+// Rotas
 app.get('/presentes', async (req, res) => {
-  try {
-    const [rows] = await db.query('SELECT * FROM presentes');
-    res.json(rows);
-  } catch (err) {
-    console.error(err);
-    res.sendStatus(500);
-  }
+  const [rows] = await connection.execute('SELECT * FROM presentes ORDER BY id DESC');
+  res.json(rows);
 });
 
-// Rota para adicionar um presente
 app.post('/presentes', async (req, res) => {
-  try {
-    const { nome, desc, link, img } = req.body;
-    await db.query('INSERT INTO presentes (nome, desc, link, img) VALUES (?, ?, ?, ?)', [nome, desc, link, img]);
-    res.sendStatus(201);
-  } catch (err) {
-    console.error(err);
-    res.sendStatus(500);
-  }
+  const { nome, desc, link, img } = req.body;
+  await connection.execute('INSERT INTO presentes (nome, desc, link, img) VALUES (?, ?, ?, ?)', [
+    nome, desc, link, img
+  ]);
+  res.sendStatus(201);
 });
 
-// Rota para alternar o status de recebido
 app.put('/presentes/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    await db.query('UPDATE presentes SET recebido = NOT recebido WHERE id = ?', [id]);
-    res.sendStatus(200);
-  } catch (err) {
-    console.error(err);
-    res.sendStatus(500);
-  }
+  const { id } = req.params;
+  const [row] = await connection.execute('SELECT recebido FROM presentes WHERE id = ?', [id]);
+  if (!row.length) return res.sendStatus(404);
+  const novoValor = !row[0].recebido;
+  await connection.execute('UPDATE presentes SET recebido = ? WHERE id = ?', [novoValor, id]);
+  res.sendStatus(200);
 });
 
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.log(`Servidor rodando em http://localhost:${port}`);
 });
