@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎁 Lista de Presentes do Casal</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #ffe0f0, #fff6f2);
+      margin: 0;
+      padding: 20px;
+      color: #444;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #d63384;
+    }
+
+    #app, #login-area {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      transition: all 0.4s ease;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin: 6px 0 12px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #ff69b4;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #e657a1;
+    }
+
+    .presente {
+      background: #fff7fc;
+      border-left: 5px solid #ff69b4;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      transition: transform 0.2s ease;
+    }
+
+    .presente:hover {
+      transform: scale(1.01);
+    }
+
+    .recebido {
+      opacity: 0.6;
+      background-color: #d4edda;
+      border-left-color: #28a745;
+    }
+
+    .logout {
+      text-align: right;
+      margin-bottom: 10px;
+    }
+
+    .logout button {
+      background-color: #ccc;
+      color: #333;
+      font-size: 0.9rem;
+    }
+
+    .logout button:hover {
+      background-color: #bbb;
+    }
+
+    img {
+      max-width: 100%;
+      margin-top: 8px;
+      border-radius: 10px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <h1>💑 Lista de Presentes do Casal</h1>
+
+  <div id="login-area">
+    <h2>Quem é você?</h2>
+    <input id="nomeUsuario" placeholder="Seu nome" />
+    <button onclick="entrar()">Entrar</button>
+  </div>
+
+  <div id="app" style="display: none;">
+    <div class="logout">
+      <span id="nomeExibido"></span>
+      <button onclick="sair()">Sair</button>
+    </div>
+
+    <h3>Adicionar um presente</h3>
+    <input id="nome" placeholder="Nome do presente" />
+    <textarea id="desc" placeholder="Descrição"></textarea>
+    <input id="link" placeholder="Link (opcional)" />
+    <input id="img" placeholder="Link da imagem (opcional)" />
+    <button onclick="adicionarPresente()">Adicionar</button>
+
+    <h3>Presentes</h3>
+    <div id="listaPresentes"></div>
+    
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
